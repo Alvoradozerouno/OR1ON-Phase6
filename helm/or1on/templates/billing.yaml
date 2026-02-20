@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: or1on-billing
+  namespace: or1on-billing
+  labels:
+    app.kubernetes.io/name: or1on-billing
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+spec:
+  replicas: {{ .Values.billing.replicas }}
+  selector:
+    matchLabels:
+      app: or1on-billing
+  template:
+    metadata:
+      labels:
+        app: or1on-billing
+    spec:
+      containers:
+        - name: billing
+          image: {{ .Values.billing.image }}
+          ports:
+            - containerPort: 8001
+          env:
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: stripe-credentials
+                  key: secret-key
+            - name: STRIPE_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: stripe-credentials
+                  key: webhook-secret
+          resources:
+            {{- toYaml .Values.billing.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: or1on-billing
+  namespace: or1on-billing
+spec:
+  selector:
+    app: or1on-billing
+  ports:
+    - port: 80
+      targetPort: 8001
