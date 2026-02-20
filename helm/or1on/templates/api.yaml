@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: or1on-api
+  namespace: or1on-core
+  labels:
+    app.kubernetes.io/name: or1on-api
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      app: or1on-api
+  template:
+    metadata:
+      labels:
+        app: or1on-api
+    spec:
+      containers:
+        - name: api
+          image: {{ .Values.api.image }}
+          ports:
+            - containerPort: 8000
+          env:
+            - name: KEYCLOAK_URL
+              value: "https://auth.{{ .Values.domain }}"
+            - name: DOMAIN
+              value: {{ .Values.domain }}
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: or1on-api
+  namespace: or1on-core
+spec:
+  selector:
+    app: or1on-api
+  ports:
+    - port: 80
+      targetPort: 8000
