@@ -1,4 +1,5 @@
 <p align="center">
+  <img src="assets/or1on_phase6_logo.png" alt="OR1ON Phase 6" width="280"><br><br>
   <strong>OR1ON Phase 6</strong><br>
   <em>Enterprise SaaS Cloud Platform</em>
 </p>
