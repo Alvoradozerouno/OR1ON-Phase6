@@ -1,0 +1,24 @@
+domain: or1on.cloud
+api:
+  replicas: 2
+  image: or1on-api:6.0.0
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+billing:
+  replicas: 1
+  image: or1on-billing:6.0.0
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+portal:
+  replicas: 1
+  image: nginx:alpine
