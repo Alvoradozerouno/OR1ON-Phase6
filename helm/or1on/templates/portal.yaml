@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: or1on-portal
+  namespace: or1on-ui
+spec:
+  replicas: {{ .Values.portal.replicas }}
+  selector:
+    matchLabels:
+      app: or1on-portal
+  template:
+    metadata:
+      labels:
+        app: or1on-portal
+    spec:
+      containers:
+        - name: portal
+          image: {{ .Values.portal.image }}
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: portal-html
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: portal-html
+          configMap:
+            name: portal-html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: or1on-portal
+  namespace: or1on-ui
+spec:
+  selector:
+    app: or1on-portal
+  ports:
+    - port: 80
+      targetPort: 80
